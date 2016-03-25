@@ -1,41 +1,14 @@
-<div class="row">
-  <div class="col-md-3">
-  </div>
-  <div class="col-md-8">
+<h1>All Topics</h1>
+<% @topics. each do |topic| %>
     <div class="media">
       <div class="media-body">
-        <br/>
-        <% if @user.name || @user.email %>
-          <h4 class="media-heading"><%= @user.name || @user.email %></h2>
-          <% if @topics %>
-            <% if @topics.first %>
-              <br/>
-              <h2>My Bookmark Topics</h2>
-              <table class="table table-bordered table-condensed">
-                <thead>
-                  <tr>
-                    <th><h3>Topic</h3></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <% @topics.each do |topic| %>
-                    <%= render partial: 'topics/topic', locals: {user: @user, topic: topic} %>
-                  <% end %>
-                </tbody>
-              </table>
-            <% else %>
-              <br/>
-              <h2>No topics</h2>
-            <% end %>
-          <% else %>
-            <br/>
-            <h2>No topics</h2>
-          <% end %>
-        <% else %>
-          <br/>
-          <h2>No user signed in</h2>
-        <% end %>
+        <h4 class="media-heading">
+          <%= link_to topic.title, topic %>
+        </h4>
       </div>
     </div>
-  </div>
+<% end %>
+
+<div class="col-md-4">
+  <%= link_to "New Topic", new_topic_path, class: 'btn btn-success' %>
 </div>

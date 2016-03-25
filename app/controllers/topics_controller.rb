@@ -1,70 +1,58 @@
 class TopicsController < ApplicationController
-  before_action :authenticate_user!, except: [:index, :show]
-
   def index
-    @user = current_user
-    @topics = current_user.topics
+    @topics = Topic.all
   end
 
   def show
-    @topic = current_user.topics.find(params[:id])
-    @user = current_user
+    @topic = Topic.find(params[:id])
   end
 
   def new
-    if current_user
-      @topic = Topic.new
-      @id = @topic.id
-      @user = current_user
-    end
+    @topic = Topic.new
   end
 
   def create
-    @topic = current_user.topics.new(params.require(:topic).permit(:title, :user_id))
-    @id = @topic.id
-    @user = current_user
+    @topic = Topic.new(topic_params)
+
     if @topic.save
-      redirect_to user_topics_path(:id, :user_id), notice: "Topic was saved successfully."
+      flash[:notice]= "Topic was saved."
+      redirect_to @topic
     else
-      flash[:error] = "Error creating topic. Please try again."
+      flash.now[:alert]= "The topic could not be saved. Please try again"
       render :new
     end
   end
 
   def edit
-    @topic = current_user.topics.find(params[:id])
-    @user = current_user
+    @topic = Topic.find(params[:id])
   end
 
   def update
-    @topic = current_user.topics.find(params[:id])
-    @user = current_user
-    if @topic.update_attributes(params.require(:topic).permit(:title))
-      @topic.reload
-      flash[:notice] = "Topic was updated."
-      redirect_to user_topics_path(:id, :user_id)
+    @topic = Topic.find(params[:id])
+    @topic.assign_attributes(topic_params)
+
+    if @topic.save
+      flash[:notice]= "The topic was saved sucessfully."
+      redirect_to @topic
     else
-      flash[:error] = "Error updating topic. Please try again."
-      render :update
+      flash.now[:alert]= "There was an error saving the topic. Please try again."
+      render :edit
     end
   end
 
   def destroy
-    @topic = current_user.topics.find(params[:id])
+    @topic = Topic.find(params[:id])
+
     if @topic.destroy
-      flash[:notice] = "Topic was deleted."
+      flash[:notice]= "\"#{@topic.title}\" was deleted successfully."
+      redirect_to topics_path
     else
-      flash[:error] = "Topic couldn't be deleted. Try again."
-    end
-    respond_to do |format|
-      format.html
-      format.js
+      flash.now[:alert] = "There was an error in deleting this topic."
+      render :show
     end
   end
 
-  private
   def topic_params
     params.require(:topic).permit(:title)
   end
-
 end

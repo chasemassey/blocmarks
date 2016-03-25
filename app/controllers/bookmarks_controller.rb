@@ -1,15 +1,11 @@
 class BookmarksController < ApplicationController
-  before_action :authenticate_user!, except: [:index, :show]
-
   def show
-    @topic = Topic.find(params[:topic_id]) #this line might be unnecessary, could do @bookmark.topic
     @bookmark = Bookmark.find(params[:id])
   end
 
   def new
     @topic = Topic.find(params[:topic_id])
     @bookmark = Bookmark.new
-    authorize @bookmark
   end
 
   def create
@@ -17,30 +13,28 @@ class BookmarksController < ApplicationController
     @bookmark = @topic.bookmarks.build(bookmark_params)
     @bookmark.user = current_user
     authorize @bookmark
-
     if @bookmark.save
-      flash[:notice] = "Bookmark saved"
+      flash[:notice]= "The bookmark was saved."
       redirect_to [@topic, @bookmark]
     else
-      flash[:alert] = "Something went wrong"
+      flash.now[:error]= "The bookmark was not saved. Please try again."
       render :new
     end
   end
 
   def edit
     @bookmark = Bookmark.find(params[:id])
-    authorize @bookmark
   end
 
   def update
     @bookmark = Bookmark.find(params[:id])
+    @bookmark.assign_attributes(bookmark_params)
     authorize @bookmark
-
-    if @bookmark.update(bookmark_params)
-      flash[:notice] = "Updated Bookmark"
+    if @bookmark.save
+      flash[:notice]= "The bookmark was updated."
       redirect_to [@bookmark.topic, @bookmark]
     else
-      flash[:alert] = "Something went wrong"
+      flash[:error]= "The bookmark was not updated. Please try again."
       render :edit
     end
   end
@@ -48,14 +42,17 @@ class BookmarksController < ApplicationController
   def destroy
     @bookmark = Bookmark.find(params[:id])
     authorize @bookmark
-    @bookmark.destroy
-    flash[:notice] = "Bookmark Deleted"
-    redirect_to @bookmark.topic
+    if @bookmark.destroy
+      flash[:notice]= "\"#{@bookmark.name}\" was deleted successfully."
+      redirect_to @bookmark.topic
+    else
+      flash[:error]= "There was an error in deleting the bookmark."
+      render :show
+    end
   end
 
-  private
+
   def bookmark_params
-    params.require(:bookmark).permit(:url)
+    params.require(:bookmark).permit(:url, :name)
   end
-
 end
