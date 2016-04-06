@@ -1,3 +1,2 @@
-class TopicPolicy
-
+class TopicPolicy < ApplicationPolicy::Base
 end

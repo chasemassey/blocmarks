@@ -5,12 +5,14 @@ class TopicsController < ApplicationController
     @topics = Topic.all
   end
 
-  def show
-    @topic = Topic.find(params[:id])
-  end
-
   def new
     @topic = Topic.new
+  end
+
+  def show
+    @topic = Topic.find(params[:id])
+    @bookmarks = @topic.bookmarks
+    @topic
   end
 
   def create
@@ -27,6 +29,7 @@ class TopicsController < ApplicationController
 
   def edit
     @topic = Topic.find(params[:id])
+    @topic.save!
   end
 
   def update
